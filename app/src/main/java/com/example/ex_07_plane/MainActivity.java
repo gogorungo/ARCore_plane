@@ -2,14 +2,19 @@ package com.example.ex_07_plane;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.hardware.display.DisplayManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,6 +37,7 @@ import com.google.ar.core.exceptions.CameraNotAvailableException;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,6 +53,10 @@ public class MainActivity extends AppCompatActivity {
 
     float mCurrentX, mCurrentY;
 
+    SeekBar seekBar;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
         mSurfaceView = (GLSurfaceView) findViewById(R.id.gl_surface_view);
 
         myTextView = (TextView) findViewById(R.id.myTextView);
+
+        seekBar = (SeekBar) findViewById(R.id.seekBar);
 
         DisplayManager displayManager = (DisplayManager) getSystemService(DISPLAY_SERVICE);
         if(displayManager != null){
@@ -118,12 +130,13 @@ public class MainActivity extends AppCompatActivity {
 
                     // getPixelIntensity() : 빛의 강도 0.0 ~ 1.0 감지
                     // 빛의 세기
-                    float lightIntensity = estimate.getPixelIntensity();
+//                    float lightIntensity = estimate.getPixelIntensity();
 
-                    float [] colorCorrection = new float[4];
+//                    float [] colorCorrection = new float[4];
                     // 빛의 색깔 가져오기
-                    estimate.getColorCorrection(colorCorrection, 0);
+//                    estimate.getColorCorrection(colorCorrection, 0);
 
+                    float [] colorCorrection = {1.0f,0.0f,1.0f,1.0f};
 
                     List<HitResult> results = frame.hitTest(mCurrentX, mCurrentY);
                     for(HitResult result : results){
@@ -141,11 +154,43 @@ public class MainActivity extends AppCompatActivity {
                                 ((Plane)trackable).isPoseInPolygon(pose)
                         ){
 
+
+
                             // 빛의 세기 값을 넘긴다.
-                            mRenderer.mObj.setLightIntensity(lightIntensity);
+//                            mRenderer.mObj.setLightIntensity(lightIntensity);
+
+
+                            seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                                @Override
+                                public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                                    if(b){
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                float light = (float) i/100;
+                                                mRenderer.mObj.setLightIntensity(light);
+                                            }
+                                        });
+                                    }
+                                }
+
+                                @Override
+                                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                                }
+
+                                @Override
+                                public void onStopTrackingTouch(SeekBar seekBar) {
+
+                                }
+                            });
+
                             // 빛의 색을 magenta 로 강제화 시킴
                             // mRenderer.mObj.setColorCorrection(new float[]{1.0f,0.0f,1.0f,1.0f});
-                            mRenderer.mObj.setColorCorrection(colorCorrection);
+
+                            // 빛의 색 가져오기
+//                            mRenderer.mObj.setColorCorrection(colorCorrection);
+
                             mRenderer.mObj.setModelMatrix(modelMatrix);
                             //큐브의 modelMatrix를 터치한 증강현실 modelMatrix로 설정
 //                            mRenderer.mCube.setModelMatrix(modelMatrix);
@@ -209,6 +254,20 @@ public class MainActivity extends AppCompatActivity {
         mSurfaceView.setEGLConfigChooser(8,8,8,8,16,0);
         mSurfaceView.setRenderer(mRenderer);
     }
+
+    public void btnClick(View view){
+        int color = ((ColorDrawable)view.getBackground()).getColor();
+
+        float [] colorCorrection = {
+                Color.red(color) / 255f,
+                Color.green(color) / 255f,
+                Color.blue(color) / 255f,
+                0.5f
+        };
+
+        mRenderer.mObj.setColorCorrection(colorCorrection);
+    }
+
 
     @Override
     protected void onResume() {

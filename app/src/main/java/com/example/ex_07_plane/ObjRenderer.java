@@ -128,7 +128,9 @@ public class ObjRenderer {
     // 빛의 세기 변수
     private float mLightIntensity;
 
-    float [] mColorCorrection = new float[4];
+//    float [] mColorCorrection = new float[4];
+    //초기 색상
+    float [] mColorCorrection = {0.8f,0.8f,0.8f,0.8f};
 
     public ObjRenderer(Context context, String objName, String textureName) {
         mContext = context;
