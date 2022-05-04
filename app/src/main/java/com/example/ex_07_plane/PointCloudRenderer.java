@@ -151,7 +151,7 @@ public class PointCloudRenderer {
         GLES20.glUniformMatrix4fv(mvp, 1, false, mMVPMatrix, 0);
 
         //점크기
-        GLES20.glUniform1f(size, 15.0f);
+        GLES20.glUniform1f(size, 5.0f);
 
         // 점들을 그린다.
         GLES20.glDrawArrays(

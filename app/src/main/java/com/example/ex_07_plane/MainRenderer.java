@@ -1,5 +1,6 @@
 package com.example.ex_07_plane;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -14,19 +15,24 @@ public class MainRenderer implements GLSurfaceView.Renderer {
     CameraPreView mCamera;
     PointCloudRenderer mPointCloud;
     PlaneRenderer mPlane;
-
+    Cube mCube;
+    ObjRenderer mObj;
 
     boolean mViewportChanged;
     int mViewportWidth, mViewportHeight;
     RenderCallback mRenderCallback;
 
 
-    MainRenderer(RenderCallback callback){
+    MainRenderer(Context context, RenderCallback callback){
         mRenderCallback = callback;
         mCamera = new CameraPreView();
         mPointCloud = new PointCloudRenderer();
         mPlane = new PlaneRenderer(Color.BLUE, 0.7f);
+
+        mCube = new Cube(0.3f, Color.YELLOW,0.8f);
+        mObj = new ObjRenderer(context, "andy.obj","andy.png");
     }
+
 
     interface  RenderCallback{
         void preRender();
@@ -46,6 +52,8 @@ public class MainRenderer implements GLSurfaceView.Renderer {
         mCamera.init();
         mPointCloud.init();
         mPlane.init();
+        mCube.init();
+        mObj.init();
 
     }
 
@@ -72,6 +80,8 @@ public class MainRenderer implements GLSurfaceView.Renderer {
         mPointCloud.draw();
 
         mPlane.draw();
+        mCube.draw();
+        mObj.draw();
     }
 
     // ARCore 세션
@@ -86,11 +96,15 @@ public class MainRenderer implements GLSurfaceView.Renderer {
     void setProjectionMatrix(float [] matrix){
         mPointCloud.updateProjMatrix(matrix);
         mPlane.setProjectionMatrix(matrix);
+        mCube.setProjectionMatrix(matrix);
+        mObj.setProjectionMatrix(matrix);
     }
 
     void updateViewMatrix(float [] matrix){
         mPointCloud.updateViewMatrix(matrix);
         mPlane.setViewMatrix(matrix);
+        mCube.setViewMatrix(matrix);
+        mObj.setViewMatrix(matrix);
     }
 
     // 카메라로부터 텍스쳐 처리
