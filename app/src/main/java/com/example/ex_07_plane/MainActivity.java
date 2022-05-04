@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
     float mCurrentX, mCurrentY;
 
-    SeekBar seekBar;
+
 
 
 
@@ -67,7 +67,24 @@ public class MainActivity extends AppCompatActivity {
 
         myTextView = (TextView) findViewById(R.id.myTextView);
 
-        seekBar = (SeekBar) findViewById(R.id.seekBar);
+        
+        // 시크바에 의한 광량 조절
+        ((SeekBar)findViewById(R.id.seekBar)).setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                mRenderer.mObj.setLightIntensity((float)i/100);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
         DisplayManager displayManager = (DisplayManager) getSystemService(DISPLAY_SERVICE);
         if(displayManager != null){
@@ -130,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
 
                     // getPixelIntensity() : 빛의 강도 0.0 ~ 1.0 감지
                     // 빛의 세기
-//                    float lightIntensity = estimate.getPixelIntensity();
+                    float lightIntensity = estimate.getPixelIntensity();
 
 //                    float [] colorCorrection = new float[4];
                     // 빛의 색깔 가져오기
@@ -160,30 +177,6 @@ public class MainActivity extends AppCompatActivity {
 //                            mRenderer.mObj.setLightIntensity(lightIntensity);
 
 
-                            seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                                @Override
-                                public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                                    if(b){
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                float light = (float) i/100;
-                                                mRenderer.mObj.setLightIntensity(light);
-                                            }
-                                        });
-                                    }
-                                }
-
-                                @Override
-                                public void onStartTrackingTouch(SeekBar seekBar) {
-
-                                }
-
-                                @Override
-                                public void onStopTrackingTouch(SeekBar seekBar) {
-
-                                }
-                            });
 
                             // 빛의 색을 magenta 로 강제화 시킴
                             // mRenderer.mObj.setColorCorrection(new float[]{1.0f,0.0f,1.0f,1.0f});
@@ -255,6 +248,7 @@ public class MainActivity extends AppCompatActivity {
         mSurfaceView.setRenderer(mRenderer);
     }
 
+    // 버튼에 의한 조명 색상 변경
     public void btnClick(View view){
         int color = ((ColorDrawable)view.getBackground()).getColor();
 
