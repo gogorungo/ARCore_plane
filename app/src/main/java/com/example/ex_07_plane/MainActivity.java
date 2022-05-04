@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.hardware.display.DisplayManager;
 import android.opengl.GLSurfaceView;
+import android.opengl.Matrix;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
@@ -35,6 +36,7 @@ import com.google.ar.core.Trackable;
 import com.google.ar.core.TrackingState;
 import com.google.ar.core.exceptions.CameraNotAvailableException;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -147,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
 
                     // getPixelIntensity() : 빛의 강도 0.0 ~ 1.0 감지
                     // 빛의 세기
-                    float lightIntensity = estimate.getPixelIntensity();
+//                    float lightIntensity = estimate.getPixelIntensity();
 
 //                    float [] colorCorrection = new float[4];
                     // 빛의 색깔 가져오기
@@ -161,22 +163,31 @@ public class MainActivity extends AppCompatActivity {
                         float [] modelMatrix = new float[16];
                         pose.toMatrix(modelMatrix, 0); // 좌표를 가지고 matrix 화 함
 
+                        float [] cubeMatrix = new float[16];
+                        pose.toMatrix(cubeMatrix, 0); // 좌표를 가지고 matrix 화 함
+
                         // 증강 공간의 좌표에 객체 있는지 받아온다(Plane 이 걸려 있는지 확인)
                         Trackable trackable = result.getTrackable();
 
+                        // 크기 변경(비율)
+                        Matrix.scaleM(modelMatrix,0,1f,2f, 1f);
+                        Log.d("모델 매트릭스", Arrays.toString(modelMatrix));
 
+                        // 이동(거리)
+                        Matrix.translateM(modelMatrix, 0,0f,0.1f,0f);
+
+                        // 회전(각도)               옵셋,       각도,   축이 0 혹은 양수, 음수만 중요
+                        // 수치조절은 각도로 하기 때문에 축의 숫자는 큰 의미가 없다. 음수, 양수만 중요
+                        Matrix.rotateM(modelMatrix,0,45,1f,0f,1f);
+                        
                         // 좌표에 걸린 객체가 Plane 인가
                         if(trackable instanceof Plane &&
                                 // Plane 폴리곤(면) 안에 좌표가 있는가?
                                 ((Plane)trackable).isPoseInPolygon(pose)
                         ){
 
-
-
                             // 빛의 세기 값을 넘긴다.
 //                            mRenderer.mObj.setLightIntensity(lightIntensity);
-
-
 
                             // 빛의 색을 magenta 로 강제화 시킴
                             // mRenderer.mObj.setColorCorrection(new float[]{1.0f,0.0f,1.0f,1.0f});
@@ -186,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
 
                             mRenderer.mObj.setModelMatrix(modelMatrix);
                             //큐브의 modelMatrix를 터치한 증강현실 modelMatrix로 설정
-//                            mRenderer.mCube.setModelMatrix(modelMatrix);
+                            mRenderer.mCube.setModelMatrix(cubeMatrix);
 
                         }
                     }
